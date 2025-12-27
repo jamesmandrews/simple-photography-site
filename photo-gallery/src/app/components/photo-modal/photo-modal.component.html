@@ -1,0 +1,61 @@
+<div class="modal" [class.active]="isOpen" (click)="onBackdropClick($event)">
+  <button class="modal-close" (click)="onClose()" aria-label="Close">&times;</button>
+  <button class="modal-nav modal-prev" (click)="onPrevious()" aria-label="Previous">&#8249;</button>
+  <button class="modal-nav modal-next" (click)="onNext()" aria-label="Next">&#8250;</button>
+
+  @if (photo) {
+    <div class="modal-content">
+      <div class="modal-image-container">
+        <img class="modal-image" [src]="getImageUrl()" [alt]="photo.alt">
+      </div>
+
+      <div class="modal-info">
+        @if (getTitle()) {
+          <h2 class="modal-title">{{ getTitle() }}</h2>
+        }
+        @if (getDescription()) {
+          <p class="modal-description">{{ getDescription() }}</p>
+        }
+
+        <div class="modal-meta">
+          @for (field of mainFields; track field) {
+            @if (getFieldValue(field)) {
+              <div class="meta-section">
+                <h3>{{ fieldLabels[field] }}</h3>
+                <p>{{ getFieldValue(field) }}</p>
+              </div>
+            }
+          }
+
+          @if (hasLocation()) {
+            <div class="meta-section">
+              <h3>Location</h3>
+              @if (getMapUrl() !== '#') {
+                <a [href]="getMapUrl()" target="_blank" rel="noopener">{{ getLocationName() || 'View on Map' }}</a>
+              } @else {
+                <p>{{ getLocationName() }}</p>
+              }
+            </div>
+          }
+
+          <div class="meta-group">
+            @for (field of gridFields; track field) {
+              @if (getFieldValue(field)) {
+                <div class="meta-item">
+                  <span class="meta-label">{{ fieldLabels[field] }}</span>
+                  <span class="meta-value">{{ getFieldValue(field) }}</span>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Purchase functionality disabled for now
+          @if (canPurchase()) {
+            <button class="purchase-btn">Purchase</button>
+          }
+          -->
+        </div>
+      </div>
+    </div>
+  }
+</div>

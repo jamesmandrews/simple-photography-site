@@ -1,0 +1,59 @@
+services:
+  frontend:
+    build:
+      context: ./photo-gallery
+      args:
+        NG_APP_SITE_NAME: ${NG_APP_SITE_NAME}
+        NG_APP_COPYRIGHT_YEAR: ${NG_APP_COPYRIGHT_YEAR}
+        NG_APP_COPYRIGHT_HOLDER: ${NG_APP_COPYRIGHT_HOLDER}
+        NG_APP_INSTAGRAM_URL: ${NG_APP_INSTAGRAM_URL}
+        NG_APP_CONTACT_EMAIL: ${NG_APP_CONTACT_EMAIL}
+        NG_APP_SHOW_LOCATION_LINK: ${NG_APP_SHOW_LOCATION_LINK}
+    ports:
+      - "8081:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build: ./photo-api
+    expose:
+      - "3000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    volumes:
+      - uploads_data:/app/uploads
+      - collections_data:/app/collections
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11
+    container_name: photo-website-db
+    ports:
+      - "3307:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  mariadb_data:
+  uploads_data:
+  collections_data:

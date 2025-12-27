@@ -1,0 +1,8 @@
+.DS_Store
+apikey.txt
+evaluations/
+
+# Environment files with secrets
+.env
+*.env.local
+.claude

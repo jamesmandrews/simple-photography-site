@@ -1,0 +1,16 @@
+<footer class="site-footer">
+  <div class="footer-copyright">
+    &copy; {{ copyright.year }} {{ copyright.holder }}. All rights reserved.
+  </div>
+  <nav class="footer-links">
+    @for (link of links; track link.label) {
+      @if (link.external && !link.url.startsWith('mailto:')) {
+        <a [href]="link.url" target="_blank" rel="noopener">{{ link.label }}</a>
+      } @else if (link.external) {
+        <a [href]="link.url">{{ link.label }}</a>
+      } @else {
+        <a [routerLink]="link.url">{{ link.label }}</a>
+      }
+    }
+  </nav>
+</footer>

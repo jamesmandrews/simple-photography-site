@@ -1,0 +1,227 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 1000;
+}
+
+.modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2.5rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  opacity: 1;
+}
+
+.modal-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.modal-nav:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.modal-prev {
+  left: 1.5rem;
+}
+
+.modal-next {
+  right: 1.5rem;
+}
+
+.modal-content {
+  display: flex;
+  max-width: 90vw;
+  max-height: 90vh;
+  gap: 2rem;
+}
+
+.modal-image-container {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-image {
+  max-width: 60vw;
+  max-height: 85vh;
+  object-fit: contain;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-info {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.modal-description {
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.modal-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.meta-section h3 {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 0.35rem;
+}
+
+.meta-section p,
+.meta-section a {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.meta-section a {
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  transition: border-color 0.2s ease;
+}
+
+.meta-section a:hover {
+  border-color: #fff;
+}
+
+.meta-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.meta-value {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.purchase-btn {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  background: #fff;
+  border: none;
+  border-radius: 6px;
+  color: #111;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: center;
+}
+
+.purchase-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 900px) {
+  .modal-content {
+    flex-direction: column;
+    align-items: center;
+    max-height: 95vh;
+    overflow-y: auto;
+    padding: 1rem;
+  }
+
+  .modal-image {
+    max-width: 85vw;
+    max-height: 50vh;
+  }
+
+  .modal-info {
+    width: 100%;
+    max-width: 500px;
+  }
+
+  .modal-nav {
+    top: auto;
+    bottom: 1.5rem;
+    transform: none;
+  }
+
+  .modal-prev {
+    left: calc(50% - 60px);
+  }
+
+  .modal-next {
+    right: calc(50% - 60px);
+  }
+}

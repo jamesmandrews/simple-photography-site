@@ -1,0 +1,43 @@
+header {
+  padding: 1.5rem 2rem 1rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.site-nav {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+}
+
+.nav-link:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.nav-link.active {
+  background: #fff;
+  border-color: #fff;
+  color: #111;
+}

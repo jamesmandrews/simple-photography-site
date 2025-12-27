@@ -1,0 +1,57 @@
+.privacy-page {
+  min-height: calc(100vh - 120px);
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.content {
+  padding: 2rem 0;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+}
+
+.last-updated {
+  color: #888;
+  font-size: 0.9rem;
+  margin-bottom: 3rem;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-size: 1.4rem;
+  font-weight: 400;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #333;
+}
+
+h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 1.5rem 0 0.75rem;
+  color: #ccc;
+}
+
+p {
+  line-height: 1.7;
+  color: #aaa;
+  margin-bottom: 1rem;
+}
+
+ul {
+  margin: 0.5rem 0 1rem 1.5rem;
+  color: #aaa;
+  line-height: 1.7;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}

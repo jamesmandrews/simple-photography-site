@@ -1,0 +1,63 @@
+<app-header title="Photography"></app-header>
+
+@if (loading) {
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+  </div>
+} @else if (photos.length === 0) {
+  <div class="empty-container">
+    <p>No featured photos yet</p>
+  </div>
+} @else {
+  <div class="gallery-container">
+    <button class="nav-button prev" (click)="goPrev()" aria-label="Previous photo">&#8249;</button>
+
+    <div class="photo-strip" [class.loaded]="isLoaded" [style.transform]="getTransform()" #photoStrip>
+      @for (originalIndex of displayOrder; track originalIndex; let i = $index) {
+        <div
+          class="photo-item"
+          [class.active]="isActive(i)"
+          (click)="onPhotoClick(i)">
+          <img
+            [src]="apiUrl + photos[originalIndex].images.featured"
+            [alt]="photos[originalIndex].alt"
+            [style.width.px]="getImageWidth(originalIndex)"
+            [style.height.px]="getImageHeight()"
+            (load)="onImageLoad()"
+            draggable="false">
+        </div>
+      }
+    </div>
+
+    <button class="nav-button next" (click)="goNext()" aria-label="Next photo">&#8250;</button>
+
+    <div class="photo-counter">
+      <span>{{ displayOrder[currentIndex] + 1 }}</span> / <span>{{ photos.length }}</span>
+    </div>
+
+    <button class="playback-btn" (click)="togglePlayback()" [attr.aria-label]="isPlaying ? 'Pause' : 'Play'">
+      {{ isPlaying ? '❚❚' : '▶' }}
+    </button>
+  </div>
+
+  <div class="indicators">
+    @for (photo of photos; track photo.id; let i = $index) {
+      <div
+        class="indicator"
+        [class.active]="displayOrder[currentIndex] === i"
+        (click)="onIndicatorClick(i)">
+      </div>
+    }
+  </div>
+}
+
+<app-photo-modal
+  [photo]="modalPhoto"
+  [isOpen]="modalOpen"
+  [apiUrl]="apiUrl"
+  (close)="closeModal()"
+  (previous)="prevModalPhoto()"
+  (next)="nextModalPhoto()">
+</app-photo-modal>
+
+<app-footer></app-footer>

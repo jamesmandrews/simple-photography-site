@@ -1,0 +1,46 @@
+<app-header title="Gallery"></app-header>
+
+<div class="filter-nav">
+  @for (collection of collections; track collection) {
+    <button
+      class="filter-btn"
+      [class.active]="activeCollection === collection"
+      (click)="setCollection(collection)">
+      {{ collection }}
+    </button>
+  }
+</div>
+
+@if (loading) {
+  <div class="loading-container">
+    <div class="loading-spinner"></div>
+  </div>
+} @else {
+  <div class="portfolio-container">
+    @for (row of rows; track $index; let rowIndex = $index) {
+      <div class="photo-row">
+        @for (photo of row.photos; track photo.id) {
+          <div class="photo-item" (click)="openModal(photo.originalIndex)">
+            <img
+              [src]="apiUrl + photo.images.thumb"
+              [alt]="photo.alt"
+              [style.width.px]="getScaledDimensions(photo, rowIndex).width"
+              [style.height.px]="getScaledDimensions(photo, rowIndex).height"
+              draggable="false">
+          </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+<app-photo-modal
+  [photo]="modalPhoto"
+  [isOpen]="modalOpen"
+  [apiUrl]="apiUrl"
+  (close)="closeModal()"
+  (previous)="prevModalPhoto()"
+  (next)="nextModalPhoto()">
+</app-photo-modal>
+
+<app-footer></app-footer>

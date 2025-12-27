@@ -1,0 +1,424 @@
+openapi: 3.1.0
+info:
+  title: Photo API
+  version: 1.0.0
+  description: |
+    REST API for managing published photos and collections consumed by the Lightroom
+    plugin and Angular gallery. All mutating endpoints require the `X-API-Key`
+    header.
+servers:
+  - url: http://localhost:3000
+    description: Local development
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+  schemas:
+    PhotoImages:
+      type: object
+      properties:
+        display:
+          type: string
+          format: uri-reference
+        featured:
+          type: string
+          format: uri-reference
+        thumb:
+          type: string
+          format: uri-reference
+      required: [display, featured, thumb]
+    PhotoMeta:
+      type: object
+      additionalProperties:
+        type: string
+    Photo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        featured:
+          type: boolean
+        collectionId:
+          type: string
+          format: uuid
+          nullable: true
+        collectionName:
+          type: string
+          nullable: true
+        title:
+          type: string
+        description:
+          type: string
+        images:
+          $ref: '#/components/schemas/PhotoImages'
+        alt:
+          type: string
+        width:
+          type: integer
+        height:
+          type: integer
+        meta:
+          $ref: '#/components/schemas/PhotoMeta'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - featured
+        - images
+        - alt
+        - width
+        - height
+        - meta
+        - createdAt
+        - updatedAt
+    PhotoList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Photo'
+    Collection:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        photoCount:
+          type: integer
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/Photo'
+      required:
+        - id
+        - name
+        - createdAt
+        - updatedAt
+paths:
+  /health:
+    get:
+      summary: Health check
+      description: Returns a minimal healthy/unhealthy status without exposing additional metadata.
+      responses:
+        '200':
+          description: API and database are reachable.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+        '503':
+          description: Database is unavailable.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [unhealthy]
+  /photos:
+    get:
+      summary: List photos
+      responses:
+        '200':
+          description: List of photos ordered by newest first.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhotoList'
+    post:
+      summary: Upload a new photo
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: JPEG/PNG/WebP image to upload (<=50MB)
+                title:
+                  type: string
+                description:
+                  type: string
+                alt:
+                  type: string
+                width:
+                  type: integer
+                  description: Optional width hint; final value is derived from the uploaded file.
+                height:
+                  type: integer
+                  description: Optional height hint; final value is derived from the uploaded file.
+                featured:
+                  type: boolean
+                collectionId:
+                  type: string
+                  format: uuid
+                  description: Existing collection to place the photo in.
+                meta:
+                  oneOf:
+                    - type: object
+                      additionalProperties:
+                        type: string
+                    - type: string
+                      description: JSON string containing metadata key/value pairs.
+              required: [image]
+      responses:
+        '201':
+          description: Photo created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '400':
+          description: Validation error (missing image, invalid JSON, missing collection, etc.).
+    delete:
+      summary: Not supported
+      responses:
+        '405':
+          description: Use `/photos/{id}` to delete a photo.
+  /photos/{photoId}:
+    parameters:
+      - name: photoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get photo by ID
+      responses:
+        '200':
+          description: Photo details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '404':
+          description: Photo not found.
+    put:
+      summary: Update photo metadata
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                alt:
+                  type: string
+                featured:
+                  type: boolean
+                collectionId:
+                  type: string
+                  format: uuid
+                  nullable: true
+                meta:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        '200':
+          description: Updated photo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+        '400':
+          description: Invalid meta payload.
+        '404':
+          description: Photo or collection not found.
+    delete:
+      summary: Delete photo
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Photo and all derived images removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Photo not found.
+  /photos/{photoId}/{size}:
+    parameters:
+      - name: photoId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: size
+        in: path
+        required: true
+        schema:
+          type: string
+          enum: [display, featured, thumb]
+    get:
+      summary: Retrieve an image rendition
+      responses:
+        '200':
+          description: Binary image stream.
+          content:
+            image/webp:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid size requested.
+        '404':
+          description: Photo or rendition not found.
+  /collections:
+    get:
+      summary: List collections
+      responses:
+        '200':
+          description: Collections with photo counts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Collection'
+    post:
+      summary: Create collection
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required: [name]
+      responses:
+        '201':
+          description: Collection created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Missing name.
+  /collections/{collectionId}:
+    parameters:
+      - name: collectionId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get collection with photos
+      responses:
+        '200':
+          description: Collection and associated photos/metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '404':
+          description: Collection not found.
+    delete:
+      summary: Delete empty collection
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Collection removed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Collection still contains photos.
+        '404':
+          description: Collection not found.
+  /collections/get-or-create:
+    post:
+      summary: Get existing or create new collection by name
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required: [name]
+      responses:
+        '200':
+          description: Existing or newly created collection.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '400':
+          description: Missing name.
+  /collections/cleanup-empty:
+    delete:
+      summary: Delete empty collections
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Cleanup summary.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  deleted:
+                    type: array
+                    items:
+                      type: string
+        '500':
+          description: Error cleaning up collections.
+security:
+  - {}
