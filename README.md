@@ -51,7 +51,7 @@ This project consists of three main components:
    openssl rand -base64 32
 
    # Set it in the API (replace with your generated key)
-   docker-compose exec api npm run set-api-key YOUR_GENERATED_KEY
+   docker-compose exec api node dist/scripts/set-api-key.js YOUR_GENERATED_KEY
    ```
    Save this key - you'll need it for the Lightroom plugin.
 
