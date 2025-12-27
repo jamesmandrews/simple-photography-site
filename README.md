@@ -30,7 +30,7 @@ This project consists of three main components:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/photo-website-two.git
+   git clone git@github.com:jamesmandrews/simple-photography-site.git
    cd photo-website-two
    ```
 
