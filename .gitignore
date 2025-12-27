@@ -6,3 +6,6 @@ evaluations/
 .env
 *.env.local
 .claude
+
+# Let's Encrypt certificates
+certbot/
