@@ -59,6 +59,109 @@ This project consists of three main components:
    - Frontend: http://localhost:8081
    - API: http://localhost:3000 (internal)
 
+### Production Deployment with SSL
+
+For production with Let's Encrypt SSL certificates.
+
+#### Prerequisites
+
+**1. DNS Configuration**
+
+Configure DNS records pointing to your server's public IP address:
+
+| Type | Name | Value |
+|------|------|-------|
+| A | @ (or yourdomain.com) | Your server's IPv4 address |
+| A | www | Your server's IPv4 address |
+| AAAA | @ (or yourdomain.com) | Your server's IPv6 address (if available) |
+| AAAA | www | Your server's IPv6 address (if available) |
+
+Alternatively, use a CNAME for www:
+
+| Type | Name | Value |
+|------|------|-------|
+| A | @ | Your server's IPv4 address |
+| AAAA | @ | Your server's IPv6 address (if available) |
+| CNAME | www | yourdomain.com |
+
+**Important:** Let's Encrypt validates over both IPv4 and IPv6. If you have AAAA records, ensure your server is accessible on port 80 over IPv6, or remove the AAAA records.
+
+Verify DNS propagation before proceeding:
+```bash
+nslookup yourdomain.com
+nslookup www.yourdomain.com
+```
+
+**2. Firewall Configuration**
+
+Port 80 must be accessible from the internet for Let's Encrypt's HTTP-01 challenge:
+```bash
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+```
+
+#### Setup Steps
+
+**Step 1: Configure environment variables**
+
+Add to your `.env` file (note the quotes around domains with spaces):
+```bash
+LETSENCRYPT_DOMAINS="yourdomain.com www.yourdomain.com"
+LETSENCRYPT_EMAIL=admin@yourdomain.com
+```
+
+**Step 2: Update nginx SSL config with your domain**
+
+Edit `photo-gallery/nginx-ssl.conf` (lines 27-28) on your server:
+```nginx
+ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
+ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+```
+
+> **Note:** The repo contains `example.com` as a placeholder. You must change this on your production server before starting with SSL.
+
+**Step 3: Obtain certificates (start without SSL first)**
+
+First, start with the base compose file (HTTP only) to obtain certificates:
+```bash
+docker-compose up -d --build
+```
+
+Run the init script to test certificate issuance:
+```bash
+./init-letsencrypt.sh --dry-run
+```
+
+If successful, obtain real certificates:
+```bash
+./init-letsencrypt.sh
+```
+
+**Step 4: Switch to SSL configuration**
+
+Stop the containers and restart with the production SSL config:
+```bash
+docker-compose down
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+#### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| `no valid A records found` | DNS not configured or not propagated. Verify with `nslookup yourdomain.com` |
+| `Connection refused` | Port 80 not open. Check firewall with `sudo ufw status` and verify container is running with `docker ps` |
+| `404` on ACME challenge | Volume mount issue. Ensure `certbot/www` directory exists and container was started with `--force-recreate` |
+| `cannot load certificate` in nginx logs | Certificate path in `nginx-ssl.conf` doesn't match your domain. Update lines 27-28 |
+| Spaces in LETSENCRYPT_DOMAINS error | Wrap the value in quotes: `LETSENCRYPT_DOMAINS="domain.com www.domain.com"` |
+
+#### What the production setup includes
+
+- Automatic HTTP to HTTPS redirect
+- Let's Encrypt certificate auto-renewal (checked every 12 hours)
+- Nginx auto-reload to pick up renewed certificates
+- Security headers (HSTS, X-Frame-Options, etc.)
+
 ### Local Development
 
 **API:**
@@ -144,6 +247,13 @@ These variables are injected at build time into the Angular frontend:
 | NG_APP_SHOW_LOCATION_LINK | Show Google Maps link for photos with GPS | true |
 
 **Note:** Frontend variables are baked into the JavaScript bundle during `docker compose build`. Changes require rebuilding the frontend image.
+
+### SSL Configuration (Production)
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| LETSENCRYPT_DOMAINS | Space-separated list of domains | example.com www.example.com |
+| LETSENCRYPT_EMAIL | Email for Let's Encrypt notifications | admin@example.com |
 
 ## License
 
