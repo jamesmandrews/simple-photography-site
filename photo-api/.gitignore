@@ -1,6 +1,13 @@
 node_modules/
 dist/
 .env
-uploads/
-collections/
 *.log
+
+# Ignore contents of uploads and collections, but keep directories
+uploads/*
+!uploads/temp/
+uploads/temp/*
+!uploads/temp/.gitkeep
+
+collections/*
+!collections/.gitkeep
